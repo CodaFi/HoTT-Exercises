@@ -1,4 +1,4 @@
-module OnePointEight where
+module #8 where
 
 open import Data.Nat
 
