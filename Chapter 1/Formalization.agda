@@ -21,3 +21,15 @@ axiom-of-choice : {A : Set}
        → (∀ (x : A) → Σ[ y ∈ B x ](R x y)) -- If for every x : A, ∃ a y : B x s.t. R x y
        → Σ[ f ∈ ((x : A) → B x)](∀ (x : A) → (R x (f x))) -- then ∃ f : A → B s.t. ∀ x : A we have R (x, f(x))
 axiom-of-choice g = proj₁ ∘ g , proj₂ ∘ g 
+
+module Chapter where
+
+-- Simple Polymorphic Functions
+-- ----------------------------
+
+id : ∀{a}{A : Set a} → A → A
+id x = x
+
+swap : ∀{a b c}{A : Set a}{B : Set b}{C : Set c} → (A → B → C) → (B → A → C)
+swap g = λ b a → g a b
+
