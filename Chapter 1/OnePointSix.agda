@@ -33,7 +33,6 @@ module ProductTwo {a}{A B : Set a} where
   indₓ₂ : ∀{c}{C : A × B -> Set c} → (f : (x : A)(y : B) → C (x , y)) → (x : A × B) → C (proj₁ x , proj₂ x)
   indₓ₂ f x = f (proj₁ x) (proj₂ x)
 
--- Must use extensionality here...
   indₓ₂-β : ∀{c}{C : A × B -> Set c} → (f : (x : A)(y : B) → C (x , y)) → (x : A × B) → indₓ₂ {C = C} f x ≡ f (proj₁ x) (proj₂ x)
-  indₓ₂-β f x = refl (f (lower (x false)) (lower (x true)))
+  indₓ₂-β f x = refl
 
