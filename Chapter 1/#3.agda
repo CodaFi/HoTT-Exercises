@@ -1,9 +1,14 @@
-module OnePointThree where
+module #3 where
 
-open import OnePointTwo as Two
 open import Data.Product
 open import Data.Sum
 open import Relation.Binary.PropositionalEquality
+
+{-
+Exercise 1.3. Derive the induction principle for products indA×B, using only the projections and 
+the propositional uniqueness principle uppt. Verify that the definitional equalities are valid. 
+Generalize uppt to Σ-types, and do the same for Σ-types. (This requires concepts from Chapter 2.)
+-}
 
 module Product { a b c }{A : Set a}{B : Set b}{C : Set c}(g : A → B → C) where
 

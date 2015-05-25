@@ -1,8 +1,13 @@
-module OnePointTwo where
+module #2 where
 
 open import Data.Product
 open import Data.Sum
 open import Relation.Binary.PropositionalEquality
+
+{-
+Exercise 1.2. Derive the recursion principle for products recA×B using only the projections, and
+verify that the definitional equalities are valid. Do the same for Σ-types.
+-}
 
 module Products { a b c }{A : Set a}{B : Set b}{C : Set c}(g : A → B → C) where
 

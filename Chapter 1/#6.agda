@@ -1,8 +1,14 @@
-module OnePointSix where
+module #6 where
 
 open import Level
 open import Data.Bool
 open import Relation.Binary.PropositionalEquality
+
+{-
+Exercise 1.6. Show that if we define A × B :≡ ∏(x:2) rec2(U, A, B, x), then we can give a 
+definition of indA×B for which the definitional equalities stated in §1.5 hold propositionally (i.e. using equality 
+types). (This requires the function extensionality axiom, which is introduced in §2.9.)
+-}
 
 rec₂ : ∀{c}{C : Set c} → C → C → Bool → C
 rec₂ c₀ c₁ true = c₁

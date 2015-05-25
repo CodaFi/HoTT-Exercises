@@ -1,4 +1,4 @@
-module OnePointEight where
+module #8 where
 
 {-
   Define multiplication and exponentiation using recN. Verify that (N, +, 0, ×, 1) is
