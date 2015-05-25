@@ -3,7 +3,7 @@ module Formalization where
 module Introduction where
 
 open import Data.Product using (Σ; Σ-syntax; _×_; _,_; proj₁; proj₂)
-open import Relation.Binary.PropositionalEquality using (_≡_; refl)
+open import Relation.Binary.PropositionalEquality using (_≡_; refl; cong)
 
 data Iso (A B : Set): Set where
   iso : (f : A → B) → (g : B → A) → (((x : A) → (g (f x)) ≡ x) × ((y : B) → (f (g y)) ≡ y))  → Iso A B
@@ -99,19 +99,19 @@ indₓ g (a , b) =  g a b
 
 -- And for the unit type
 
-ind₁ : ∀{c}{C : ⊤ → Set c} → C tt → (x : ⊤) → C x
+ind₁ : {C : ⊤ → Set} → C tt → (x : ⊤) → C x
 ind₁ c ⋆ = c
 
 -- "Induction enables us to prove the propositional uniqueness principle for 1, which asserts that its
 -- only inhabitant is ⋆. That is, we can construct"
 
-upun : {x : ⊤} → x ≡ tt
-upun = refl
+upun : (x : ⊤) → x ≡ tt
+upun x = refl
 
 -- The uniqueness of unit can also be asserted by induction
 
-upun-ind : {x : ⊤} → x ≡ tt
-upun-ind = {!!}
+upun-ind : (x : ⊤) → x ≡ tt
+upun-ind x = ind₁ {C = λ x → x ≡ tt} refl x
 
 -- Sigma (Dependent Pair) Types 
 -- ----------------------------
@@ -151,3 +151,108 @@ record PointedMagma (A : Set) : Set where
   pointedMagmaIsMagma = record { mop = pmop }
 open PointedMagma {{...}} public
 
+-- Coproducts
+
+open import Data.Sum
+
+rec₊ : ∀{a b c}{A : Set a}{B : Set b}{C : Set c} → (A → C) → (B → C) → A ⊎ B → C
+rec₊ g₀ g₁ (inj₁ x) = g₀ x
+rec₊ g₀ g₁ (inj₂ y) = g₁ y
+
+-- Oh look, ⊥
+
+open import Data.Empty
+
+-- Any definition of the recursor would means proving 'ex falso quodlibet'.
+-- Let's try not to do that...
+rec₀ : ∀{c}{C : Set c} → ⊥ → C
+rec₀ ()
+
+ind₊ :  ∀{a b c}{A : Set a}{B : Set b}{C : (A ⊎ B) → Set c}
+     → ((x : A) → C (inj₁ x))
+     → ((y : B) → C (inj₂ y))
+     → (x : A ⊎ B) → C x
+ind₊ g₀ g₁ (inj₁ x) = g₀ x
+ind₊ g₀ g₁ (inj₂ y) = g₁ y
+
+ind₀ : ∀{c}{C : ⊥ → Set c} → (z : ⊥) → C z
+ind₀ ()
+
+-- The type of booleans
+
+open import Data.Bool
+
+rec₂ : ∀{c}{C : Set c} → C → C → Bool → C
+rec₂ c₀ c₁ true = c₁
+rec₂ c₀ c₁ false = c₀
+
+ind₂ : ∀{c}{C : Bool → Set c} → C false → C true → (x : Bool) → C x
+ind₂ c₀ c₁ true = c₁
+ind₂ c₀ c₁ false = c₀
+
+dec₂ : (x : Bool) → (x ≡ false) ⊎ (x ≡ true)
+dec₂ x = ind₂ {C = λ x → (x ≡ false) ⊎ (x ≡ true)} (inj₁ refl) (inj₂ refl) x
+
+-- The type of Natural Numbers
+
+open import Data.Nat
+
+double : ℕ → ℕ
+double zero = zero
+double (suc n) = suc (suc (double n))
+
+add : ℕ → ℕ → ℕ
+add zero n = n
+add (suc m) n = suc (add m n)
+
+recₙ : ∀{c}{C : Set c} → C → (ℕ → C → C) → ℕ → C
+recₙ c₀ cₛ zero = c₀
+recₙ c₀ cₛ (suc n) = cₛ n (recₙ c₀ cₛ n)
+
+double-recₙ : ℕ → ℕ
+double-recₙ = recₙ 0 (λ n y → suc (suc y))
+
+add-recₙ : ℕ → ℕ → ℕ
+add-recₙ = recₙ {C = ℕ → ℕ} (λ n → n) (λ n → λ g m → suc (g m))
+
+indₙ : {C : ℕ → Set} → C 0 → ((n : ℕ) → C n → C (suc n)) → (n : ℕ) → C n
+indₙ c₀ cₛ zero = c₀
+indₙ c₀ cₛ (suc n) = cₛ n (indₙ c₀ cₛ n)
+
+assoc : (i j k : ℕ) → i + (j + k) ≡ (i + j) + k
+assoc = indₙ {C = λ i → (j k : ℕ) → i + (j + k) ≡ (i + j) + k} assoc₀ assocₛ
+  where
+    assoc₀ : (j k : ℕ) → 0 + (j + k) ≡ (0 + j) + k
+    assoc₀ j k = refl
+
+    assocₛ : (i : ℕ) → ((j k : ℕ) → i + (j + k) ≡ (i + j) + k) → (j k : ℕ) → (suc i) + (j + k) ≡ ((suc i) + j) + k
+    assocₛ _ i j k = cong suc (i j k)
+
+-- Propositions As Types
+
+{-
+¬_ : {A : Set} → A → ⊥
+¬ x = ()
+-}
+
+
+-- Path Induction
+
+open import Level
+
+ind₌ : ∀{a}{A : Set a} → (C : (x y : A) → (x ≡ y) → Set) → ((x : A) → C x x refl) → (x y : A) → (p : x ≡ y) → C x y p
+ind₌ C c x y p rewrite p =  c y
+
+based-ind₌ : ∀{x}{A : Set x} → (a : A) → (C : (x : A) → (a ≡ x) → Set) → C a refl → (x : A) → (p : a ≡ x) → C x p
+based-ind₌ a C c b p rewrite p = c
+
+{-
+data D {w}{A : Set w} : (x y : A) → (x ≡ y) → Set w where
+  mkD : (x y : A) → (p : x ≡ y) → (C : (z : A) → (x ≡ z) → Set) → C x refl → C y p → D x y p
+
+ind₌-β : ∀{a}{A : Set a} → (C : (x y : A) → (x ≡ y) → Set) → (c : (x : A) → C x x refl) → (x y : A) → (p : x ≡ y) → ind₌ C c x y p ≡ based-ind₌ x (C x) (c x) y p
+ind₌-β C c x y p = {!!}
+  where
+    d : ∀{a}{A : Set a} → (x : A) → D x x refl
+    d = λ x₁ → {!!}
+-}
