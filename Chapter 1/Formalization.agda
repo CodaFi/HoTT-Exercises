@@ -112,3 +112,42 @@ upun = refl
 
 upun-ind : {x : ⊤} → x ≡ tt
 upun-ind = {!!}
+
+-- Sigma (Dependent Pair) Types 
+-- ----------------------------
+
+-- We'll use the Σ in the Agda Stdlib (because of the cool syntax).
+--
+-- For a constant type B rather than a B indexed by x : A, dependent pairs
+-- and just cartesian products.  With that in mind, the recursor for dependent
+-- pairs looks much the same as the one for the cartesian product
+
+recₚ : ∀{a b c}{A : Set a}{B : A → Set b}{C : Set c}
+     → ((x : A) → B x → C) -- It suffices to define the dependent function g such that
+     → Σ[ x ∈ A ](B x) → C -- ∀ Σ(x : A)B x, C holds.
+recₚ g (a , b) = g a b
+
+-- Here's Induction
+
+indₚ : ∀{a b c}{A : Set a}{B : A → Set b}{C : Σ[ x ∈ A ](B x) → Set c}
+     → ((x : A)(y : B x) -- ∀ x , y
+     → C (x , y)) -- and a property that holds for the pair (x , y)
+     → (p : Σ[ x ∈ A ](B x)) → C p -- ∀ pairs x, C holds
+indₚ g (a , b) = g a b
+
+
+-- NB: Read Π as "forall" and Σ as "exists"
+
+record Magma (A : Set) : Set where
+  field
+    mop : A → A → A
+open Magma {{...}} public
+
+record PointedMagma (A : Set) : Set where
+  field
+    mbasepoint : A
+    pmop : (A → A → A)
+  pointedMagmaIsMagma : Magma A
+  pointedMagmaIsMagma = record { mop = pmop }
+open PointedMagma {{...}} public
+
