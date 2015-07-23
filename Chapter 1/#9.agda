@@ -1,4 +1,4 @@
-module OnePointNine where
+module #9 where
 
 {-
   Define the type family Fin : N → U mentioned at the end of §1.3, and the dependent

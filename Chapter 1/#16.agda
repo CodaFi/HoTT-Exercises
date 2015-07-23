@@ -1,4 +1,4 @@
-module OnePointSixteen where
+module #16 where
 
 {-
   Show that addition of natural numbers is commutative: ∏(i,j:N)(i + j = j + i).

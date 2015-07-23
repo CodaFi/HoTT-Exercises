@@ -1,4 +1,4 @@
-module OnePointFifteen where
+module #15 where
 
 {-
   Show that indiscernability of identicals follows from path induction

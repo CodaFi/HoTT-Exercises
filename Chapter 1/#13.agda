@@ -1,4 +1,4 @@
-module OnePointThirteen where
+module #13 where
 
 {-
   Using propositions-as-types, derive the double negation of the principle of excluded

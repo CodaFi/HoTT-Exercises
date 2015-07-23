@@ -1,4 +1,4 @@
-module OnePointTen where
+module #10 where
 
 {-
   Exercise 1.10. Show that the Ackermann function ack : N → N → N is definable using only

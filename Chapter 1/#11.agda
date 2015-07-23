@@ -1,4 +1,4 @@
-module OnePointEleven where
+module #11 where
 
 {-
   Show that for any type A, we have ¬¬¬A → ¬A.

@@ -1,4 +1,4 @@
-module OnePointTwelve where
+module #12 where
 
 {-
   Using the propositions as types interpretation, derive the following tautologies.

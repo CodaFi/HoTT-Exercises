@@ -5,7 +5,7 @@ Exercise 1.7. Give an alternative derivation of ind′=A from ind=A which avoids
 (This is easiest using concepts from later chapters.)
 -}
 
-data C : {a} (A : Set a) → (y : A) : Set a where
-     _=_
+open import Relation.Binary.PropositionalEquality
 
-ind'=A : ∀{a c}{A : Set a}(C : (x: A) → Set c)
+ind'₌A : ∀{a}{A : Set a} → (C : (x y : A) → (x ≡ y) → Set) → ((x : A) → C x x refl) → (x y : A) → (p : x ≡ y) → C x y p
+ind'₌A = {!!}
