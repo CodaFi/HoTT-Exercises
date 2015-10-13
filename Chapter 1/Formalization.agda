@@ -36,7 +36,7 @@ swap g = λ b a → g a b
 -- Product Types
 -- -------------
 
--- To specify a type (a la Martin Lof's TT) we need:
+-- To specify a type (a la Martin Löf's TT) we need:
 -- ∘ Formation Rules ("We can form f : A → B when A : Type and B : Type")
 -- ∘ Introduction Rules (Constructors)
 -- ∘ Elimination Rules (How to use the type's elements)
