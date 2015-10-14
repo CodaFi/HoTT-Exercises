@@ -240,19 +240,26 @@ assoc = indₙ {C = λ i → (j k : ℕ) → i + (j + k) ≡ (i + j) + k} assoc�
 
 open import Level
 
-ind₌ : ∀{a}{A : Set a} → (C : (x y : A) → (x ≡ y) → Set) → ((x : A) → C x x refl) → (x y : A) → (p : x ≡ y) → C x y p
-ind₌ C c x y p rewrite p =  c y
+ind₌ : ∀ {i} {A : Set i} → (C : (x y : A) → (x ≡ y) → Set i) → ((x : A) → C x x refl) → {x y : A} → (p : x ≡ y) → C x y p
+ind₌ C c {x}{y} p rewrite p = c y
 
-based-ind₌ : ∀{x}{A : Set x} → (a : A) → (C : (x : A) → (a ≡ x) → Set) → C a refl → (x : A) → (p : a ≡ x) → C x p
-based-ind₌ a C c b p rewrite p = c
+based-ind₌ : ∀ {i} {A : Set i}{a : A} → (C : (x : A) → (a ≡ x) → Set i) → C a refl → {x : A} → (p : a ≡ x) → C x p
+based-ind₌ C c p rewrite p = c
 
 {-
-data D {w}{A : Set w} : (x y : A) → (x ≡ y) → Set w where
-  mkD : (x y : A) → (p : x ≡ y) → (C : (z : A) → (x ≡ z) → Set) → C x refl → C y p → D x y p
-
-ind₌-β : ∀{a}{A : Set a} → (C : (x y : A) → (x ≡ y) → Set) → (c : (x : A) → C x x refl) → (x y : A) → (p : x ≡ y) → ind₌ C c x y p ≡ based-ind₌ x (C x) (c x) y p
-ind₌-β C c x y p = {!!}
-  where
-    d : ∀{a}{A : Set a} → (x : A) → D x x refl
-    d = λ x₁ → {!!}
+ind₌-β : ∀ {i} {A : Set i}
+  → (C : (x y : A) → (x ≡ y) → Set i)
+  → (c : (x : A) → C x x refl)
+  → (x : A)
+  → (C' : (y : A) → (x ≡ y) → Set i)
+  → (c' : C' x refl)
+  → (y : A)
+  → (p : x ≡ y)
+  → ind₌ C c p <-> based-ind₌ C' c' p
+ind₌-β {i} {A} C c x C' c' y p = ? where
+    D : (x y : A) → (x ≡ y) → Set i
+    D x y p = (C : (z : A) → (x ≡ z) → Set i) → C x refl → C y p
+    
+    d : (x : A) → D x x refl
+    d = λ x₁ → λ C → (c : C x refl) → c
 -}

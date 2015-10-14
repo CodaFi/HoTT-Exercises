@@ -83,7 +83,7 @@ inv-sym refl = refl
 --               produce an element d : D x x reflₓ (simply identity) then apply the induction
 --               principle above to D and d.
 composite : ∀ {i} {A : Set i}{x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
-composite {i} {A} {_}{_}{z} p = ind₌ D d  p where
+composite {i} {A} {_}{_}{z} p = ind₌ D d p where
   D : (x y : A) → (p : x ≡ y) → Set i
   D x y _ = y ≡ z → x ≡ z
 
@@ -127,7 +127,7 @@ open import Function
 
 -- Reflexivity right
 lem-1-r : ∀ {i} {A : Set i}{x y : A}{p : x ≡ y} → p ≡ (composite p refl)
-lem-1-r {i} {A} {x}{y} {p} = ind₌ D d p  where
+lem-1-r {i} {A} {x}{y} {p} = ind₌ D d p where
   D : (x y : A) → (x ≡ y) → Set i
   D x y p = p ≡ composite p refl
 
@@ -136,7 +136,7 @@ lem-1-r {i} {A} {x}{y} {p} = ind₌ D d p  where
   
 -- Reflexivity left
 lem-1-l : ∀ {i} {A : Set i}{x y : A}{p : x ≡ y} → p ≡ (composite refl p)
-lem-1-l {i} {A} {x}{y} {p} = ind₌ D d p  where
+lem-1-l {i} {A} {x}{y} {p} = ind₌ D d p where
   D : (x y : A) → (x ≡ y) → Set i
   D x y p = p ≡ composite refl p
 
@@ -144,7 +144,7 @@ lem-1-l {i} {A} {x}{y} {p} = ind₌ D d p  where
   d = λ x → refl
 
 lem-2-l : ∀ {i} {A : Set i}{x y : A}{p : x ≡ y} → composite ((p)⁻¹) p ≡ refl
-lem-2-l {i} {A} {x}{y} {p} = ind₌ D d p  where
+lem-2-l {i} {A} {x}{y} {p} = ind₌ D d p where
   D : (x y : A) → (p : x ≡ y) → Set i
   D x y p = composite ((p)⁻¹) p ≡ refl
 
@@ -152,7 +152,7 @@ lem-2-l {i} {A} {x}{y} {p} = ind₌ D d p  where
   d = λ x → refl
 
 lem-2-r : ∀ {i} {A : Set i}{x y : A}{p : x ≡ y} → composite p ((p)⁻¹) ≡ refl
-lem-2-r {i} {A} {x}{y} {p} = ind₌ D d p  where
+lem-2-r {i} {A} {x}{y} {p} = ind₌ D d p where
   D : (x y : A) → (x ≡ y) → Set i
   D x y p = composite p ((p)⁻¹) ≡ refl
 
@@ -161,7 +161,7 @@ lem-2-r {i} {A} {x}{y} {p} = ind₌ D d p  where
 
 -- Inversion of identity
 lem-3 : ∀ {i} {A : Set i}{x y : A}{p : x ≡ y} → ((p)⁻¹)⁻¹ ≡ p
-lem-3 {i} {A} {x}{y} {p} = ind₌ D d p  where
+lem-3 {i} {A} {x}{y} {p} = ind₌ D d p where
   D : (x y : A) → (x ≡ y) → Set i
   D x y p = ((p)⁻¹)⁻¹ ≡ p
 
@@ -191,16 +191,17 @@ lem-4 {i} {A} {_}{_}{z} = ind₌ D₁ d₁ where
 
 -- Lemma 2.1.6
 
-
-Ω : (A : Set) → {p : A} → Set
+{-
+Ω : ∀ {i} (A : Set i) → {p : A} → Set i
 Ω A {x} = x ≡ x
 
-{-
-_X_ : {A : Set} → Ω A → Ω A → Ω A 
+
+_X_ : ∀ {i} {A : Set i} → Ω A → Ω A → Ω A
 refl X refl = refl
 
-Ω² : (A : Set) → {p : A} → Set
-Ω² A {x} = refl ≡ refl
+
+Ω² : ∀ {i}{A : Set i}(X : Ω A) → {p : X} → Set (lsuc i)
+Ω² X {x} = refl ≡ refl
 
 transport : {A : Set}{x y : A}{P : A → Set} → (p : x ≡ y) → (P x → P y)
 transport {A} {P} = {!ind₌ D d x y p!}
