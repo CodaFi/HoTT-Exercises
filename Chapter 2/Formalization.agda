@@ -203,15 +203,35 @@ refl X refl = refl
 Ω² : ∀ {i}{A : Set i}(X : Ω A) → {p : X} → Set (lsuc i)
 Ω² X {x} = refl ≡ refl
 
-transport : {A : Set}{x y : A}{P : A → Set} → (p : x ≡ y) → (P x → P y)
-transport {A} {P} = {!ind₌ D d x y p!}
+-}
+
+-- 2.2
+
+-- 2.2.1
+
+-- We're type theorists, so we like funtor-looking things.
+-- Paths are funtor looking things.
+-- We like paths
+-- They respect equality and are all continuous-like
+ap : ∀ {i} {A : Set i}{B : Set i}{x y : A}{f : A → B} → (x ≡ y) → (f x ≡ f y)
+ap {i} {A}{B} {x}{y}{f} p = ind₌ D d p where
+  D : (x y : A) → (p : x ≡ y) → Set i 
+  D x y p = f x ≡ f y
+
+  d : (x : A) → D x x refl
+  d = λ x → refl
+
+-- 2.3
+
+-- The dependently typed version of `ap` takes a type family and relates its instantiations with p
+transport : ∀ {i} {A : Set i}{P : A → Set i}{x y : A} → (p : x ≡ y) → (P x → P y)
+transport {i} {A}{P} {x}{y} p = ind₌ D d p
   where
-    D : (x y : A) → (p : x ≡ y) → Set
+    D : (x y : A) → (p : x ≡ y) → Set i
     D x y p = P x → P y
 
-    d : {x : A} → D x x refl
+    d : (x : A) → D x x refl
     d = λ x → id
--}
 
 open import Data.Product
 
