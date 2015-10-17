@@ -94,8 +94,8 @@ composite {i} {A} {_}{_}{z} p = ind₌ D d p where
 --               we produce an element d (x) : D x x reflₓ again, but rather than the identity we go a
 --               step further and define E : Π (x z : A) Π (q : x ≡ z) → Type.  We then produce an
 --               element e (x) : E x x reflₓ.  Induction on D d then unfolds to induction on D then E e.
-composite-2 : ∀ {i} {A : Set i}{x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
-composite-2 {i} {A} {_}{_}{z} = ind₌ D d where
+composite' : ∀ {i} {A : Set i}{x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
+composite' {i} {A} {_}{_}{z} = ind₌ D d where
   D : (x y : A) → (p : x ≡ y) → Set i
   D x y _ = y ≡ z → x ≡ z
 
