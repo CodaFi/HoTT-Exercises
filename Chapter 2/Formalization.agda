@@ -6,7 +6,9 @@ open import Agda.Primitive using (lsuc)
 
 open import Relation.Binary.PropositionalEquality
 open Relation.Binary.PropositionalEquality.≡-Reasoning
-  
+
+open import Level
+
 -- Recall Lemma 1.12
 
 ind₌ : ∀{a b}{A : Set a} → (C : (x y : A) → (x ≡ y) → Set b) → ((x : A) → C x x refl) → {x y : A} → (p : x ≡ y) → C x y p
@@ -192,7 +194,7 @@ lem-4 {i} {A} {_}{_}{z} = ind₌ D₁ d₁ where
 -- Lemma 2.1.6
 
 open import Data.Product using (Σ ; _,_ ; proj₁ ; proj₂)
-open import Data.Nat
+open import Data.Nat using (ℕ ; suc)
 
 -- We need pointed sets for this part
 Set• : ∀ i → Set _
@@ -239,18 +241,87 @@ ap {i} {A}{B} {x}{y}{f} p = ind₌ D d p where
 
 -- The dependently typed version of `ap` takes a type family and relates its instantiations with p
 transport : ∀ {i} {A : Set i}{P : A → Set i}{x y : A} → (p : x ≡ y) → (P x → P y)
-transport {i} {A}{P} {x}{y} p = ind₌ D d p
-  where
+transport {i} {A}{P} {x}{y} p = ind₌ D d p where
     D : (x y : A) → (p : x ≡ y) → Set i
     D x y p = P x → P y
 
     d : (x : A) → D x x refl
     d = λ x → id
-
-open import Data.Product
-
+-- Topologically, we can view transport as a "path lifting" operation
+-- That is, we lift the path p to a path in the space ∑[ x ∈ A ] P(x) provided we have a
+-- base point u in the lifted space.
+--
+-- Basically, P respects equality
 path-lifting : ∀ {a p}{A : Set a}{x y : A}{P : A → Set p} → (u : P x) → (p : x ≡ y) → (x , u) ≡ (y , u)
 path-lifting = λ {a} {p} {A} {x} {y} {P} u → cong (λ z → z , u)
+
+-- Look, transport works in the "upper" space too!
+apd : ∀ {i} {A : Set i}{P : A → Set i}{f : (x : A) → P x}{x y : A} → (p : x ≡ y) → (transport p (f x) ≡ f y)
+apd {i} {A}{P} {f}{x}{y} p = ind₌ D d p where
+  D : (x y : A) → (p : x ≡ y) → Set i
+  D x y p = transport p (f x) ≡ f y
+
+  d : (x : A) → D x x refl
+  d = λ x → refl
+
+-- By induction, it suffices to assume p is refl.  Because of course it does.
+apd' : ∀ {i} {A : Set i}{P : A → Set i}{f : (x : A) → P x}{x y : A} → (p : x ≡ y) → (transport p (f x) ≡ f y)
+apd' refl = refl
+
+-- We can also fix B and make transport work like fmap with equalities.
+transportconst : ∀ {i} {A : Set i}{B : Set i}{P : A → B}{x y : A} → (p : x ≡ y) → (b : B) → transport p b ≡ b
+transportconst {i} {A}{B}{P} {x}{y} p b = ind₌ D d p where
+  D : (x y : A) → (x ≡ y) → Set i
+  D x y p = transport p b ≡ b
+
+  d : (x : A) → D x x refl
+  d = λ x → refl
+
+{-
+lem-2-3-8 : ∀ {i} {A : Set i}{B : Set i}{f : A → B}{x y : A} → (p : x ≡ y) → apd p ≡ transportconst (ap p) (f x)
+lem-2-3-8 {i} {A}{B}{f} {x}{y} p = ind₌ D d p where
+  D : (x y : A) → (x ≡ y) → Set i
+  D x y p = apd p ≡ transportconst (f x) ∘ ap p
+
+  d : (x : A) → D x x refl
+  d = refl
+
+
+lem-2-3-9 : ∀ {i} {A : Set i}{P : A → Set i}{x y z : A} → (p : x ≡ y) → (q : y ≡ z) → (u : P x) → transport q (transport p u) ≡ transport (p ∘ q) u
+lem-2-3-9 = ?
+-}
+
+-- Homotopies
+
+-- Under Propositions-as-Types two functions are the same if they give the same outputs on the
+-- same inputs.  Which looks like this: a type whose terms are proofs of that^
+_∼_ : ∀ {a b} {A : Set a}{P : A → Set b} → (f g : (x : A) → P x) → Set (a ⊔ b)
+_∼_ {a}{b} {A}{P} f g = (x : A) → f x ≡ g x
+
+-- 2.4.2
+
+lem-2-4-2 : ∀ {a} {A : Set a}{B : Set a} → (f : A → B) → f ∼ f
+lem-2-4-2 f = λ _ → refl
+
+lem-2-4-2' : ∀ {a} {A : Set a}{B : Set a} → (f g : A → B) → (f ∼ g) → (g ∼ f)
+lem-2-4-2' f g x x₁ = sym (x x₁)
+
+{-
+-- For a function f, a quasi-inverse of f is a triple
+record _≅_ {i j}{A : Set i}{B : Set j}(to : A → B)(from : B → A) : Set (i ⊔ j) where
+  field
+    iso₁ : (x : A) → from (to x) ≡ x
+    iso₂ : (y : B) → to (from y) ≡ y
+
+
+id-has-qinv : id ≅ id
+id-has-qinv = record
+  { iso₁ = λ _ → refl
+  ; iso₂ = λ _ → refl
+  }
+-}
+
+-- 2.13
 
 
 
