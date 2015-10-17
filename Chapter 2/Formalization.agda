@@ -191,21 +191,35 @@ lem-4 {i} {A} {_}{_}{z} = ind₌ D₁ d₁ where
 
 -- Lemma 2.1.6
 
-{-
-Ω : ∀ {i} (A : Set i) → {p : A} → Set i
-Ω A {x} = x ≡ x
+open import Data.Product using (Σ ; _,_ ; proj₁ ; proj₂)
+open import Data.Nat
 
+-- We need pointed sets for this part
+Set• : ∀ i → Set _
+Set• i = Σ (Set i) λ X → X
 
-_X_ : ∀ {i} {A : Set i} → Ω A → Ω A → Ω A
-refl X refl = refl
+-- The loop space of a type is
+--  - A base point
+--  - A loop (reflexivity) about that point
+Ω₁ : ∀ {i} → Set• i → Set• i
+Ω₁ (X , x) = ((x ≡ x) , refl)
 
+-- Construct arbitrary n-dimensional loop spaces
+Ωⁿ : ∀ {i} → ℕ → Set• i → Set• _
+Ωⁿ 0 x = x
+Ωⁿ (suc n) x = Ωⁿ n (Ω₁ x)
 
-Ω² : ∀ {i}{A : Set i}(X : Ω A) → {p : X} → Set (lsuc i)
-Ω² X {x} = refl ≡ refl
+-- Projects the type from an n-dimensional loop space
+Ω : ∀ {i} → ℕ → {X : Set i} → X → Set i
+Ω n {X} x = proj₁ (Ωⁿ n (X , x))
 
--}
+-- Projects the loop from an n-dimensional loop space
+loop : ∀ {i} n {X : Set i}(x : X) → Ω n x
+loop n {X} x = proj₂ (Ωⁿ n (X , x))
 
--- 2.2
+-- Composition operation on n-dimensional loop spaces
+_×_ : ∀ {i} n {A : Set i}{x : A} → Ω n x → Ω n x → Ω n x
+_×_ n {A} {x} x₁ x₂ = loop n x
 
 -- 2.2.1
 
