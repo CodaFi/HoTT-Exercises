@@ -111,8 +111,8 @@ composite' {i} {A} {_}{_}{z} = ind₌ D d where
 
 
 -- Third proof.  Everything is reflexivity you fool.  The hell did you do all that work for before?
-composite-3 : ∀ {i} {A : Set i}{x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
-composite-3 refl refl = refl
+composite'' : ∀ {i} {A : Set i}{x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
+composite'' refl refl = refl
 
 --   Equality   |        Homotopy        |     ∞-Groupoid      
 -- reflexivity  | constant path          | identity morphism
@@ -306,22 +306,54 @@ lem-2-4-2 f = λ _ → refl
 lem-2-4-2' : ∀ {a} {A : Set a}{B : Set a} → (f g : A → B) → (f ∼ g) → (g ∼ f)
 lem-2-4-2' f g x x₁ = sym (x x₁)
 
-{-
--- For a function f, a quasi-inverse of f is a triple
-record _≅_ {i j}{A : Set i}{B : Set j}(to : A → B)(from : B → A) : Set (i ⊔ j) where
+
+-- For any A and B, a quasi-inverse of f is a triple with
+--    ∘ A way back (an inverse for the homomorphism)
+--    ∘ Homotopies:
+--        ⊚ α : f ∘ g ∼ id
+--        ⊚ β : g ∘ f ∼ id
+-- For now, because I am lazy, the presence of a quasi-inverse will count
+-- as our definition of equivalence for now.  Sorry.
+record IsEquiv {i j}{A : Set i}{B : Set j}(to : A → B) : Set (i ⊔ j) where
   field
+    from : B → A
     iso₁ : (x : A) → from (to x) ≡ x
     iso₂ : (y : B) → to (from y) ≡ y
 
-
-id-has-qinv : id ≅ id
-id-has-qinv = record
-  { iso₁ = λ _ → refl
+-- Example 2.4.7: Identity is an equivalence.
+id-is-equiv : ∀ {i} (A : Set i) → IsEquiv (id {i}{A})
+id-is-equiv {i} A = record
+  { from = id {i}{A}
+  ; iso₁ = λ _ → refl
   ; iso₂ = λ _ → refl
   }
--}
+
+-- Type equivalence is also an equivalence, just on the Universe because:
+--    ∘ id-is-equiv works for it, therefore A ≃ A
+--    ∘ With A ≃ B, we can always make B ≃ A
+--    ∘ With A ≃ B and B ≃ C we have A ≃ C 
+_≃_ : ∀ {i j} (A : Set i) (B : Set j) → Set (i ⊔ j)
+A ≃ B = Σ (A → B) IsEquiv
+
+
+-- 2.10
+
+-- This says, when you get down to it, id on universes is a
+-- type family with a total space of pointed types.  Turns out
+-- Ω isn't just for horses.
+idtoeqv : ∀ {i} {A : Set i}{B : Set i} → (A ≡ B) → (A ≃ B)
+idtoeqv {_}{A} refl = (id , id-is-equiv A)
+
+-- With idtoeqv in hand, we have to ask Agda nicely to make idtoeqv an equivalence.
+
+postulate -- Just kidding
+  ua : ∀ {i} {A : Set i}{B : Set i} → (A ≃ B) ≃ (A ≡ B)
+-- ^This says "equivalent types may be identified"
 
 -- 2.13
 
 
+
+code : ℕ → ℕ → Set
+code = {!!}
 
