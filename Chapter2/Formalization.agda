@@ -237,6 +237,9 @@ ap {i} {A}{B} {x}{y}{f} p = ind₌ D d p where
   d : (x : A) → D x x refl
   d = λ x → refl
 
+ap' : ∀ {i j} {A : Set i}{B : Set j}{x y : A} → (f : A → B) → ((x ≡ y) → (f x ≡ f y))
+ap' f refl = refl
+
 -- 2.3
 
 -- The dependently typed version of `ap` takes a type family and relates its instantiations with p
@@ -285,8 +288,9 @@ lem-2-3-8 {i} {A}{B}{f} {x}{y} p = ind₌ D d p where
 
   d : (x : A) → D x x refl
   d = refl
+-}
 
-
+{-
 lem-2-3-9 : ∀ {i} {A : Set i}{P : A → Set i}{x y z : A} → (p : x ≡ y) → (q : y ≡ z) → (u : P x) → transport q (transport p u) ≡ transport (p ∘ q) u
 lem-2-3-9 = ?
 -}
@@ -335,6 +339,10 @@ id-is-equiv {i} A = record
 _≃_ : ∀ {i j} (A : Set i) (B : Set j) → Set (i ⊔ j)
 A ≃ B = Σ (A → B) IsEquiv
 
+{-
+happly : ∀ {i}{A : Set i}{f g : A → Set i} → (f ≡ g) → ((x : A) → f x ≡ g x)
+happly p x = ap' (λ u → u x)
+-}
 
 -- 2.10
 
@@ -350,10 +358,53 @@ postulate -- Just kidding
   ua : ∀ {i} {A : Set i}{B : Set i} → (A ≃ B) ≃ (A ≡ B)
 -- ^This says "equivalent types may be identified"
 
--- 2.13
+-- 2.12
 
+{-
+data _⊎_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
+  inl : (x : A) → A ⊎ B
+  inr : (y : B) → A ⊎ B
 
+code : ∀ {a b}{{A : Set a}}{{B : Set b}} → A ⊎ B → Set (a ⊔ b)
+code (inl a) = ?
+code (inr b) = ⊥
+    
+code-lem : ∀ {a b}{{A : Set a}}{{B : Set b}} → (x : A ⊎ B) → (a₀ : A) → ((inl a₀ ≡ x) ≃ code x)
+code-lem {{A}} {{B}} x a₀ = ? where
+    encode : (x : A ⊎ B) → (p : inl a₀ ≡ x) → code x
+    encode x p = transport p refl
+
+    decode : (x : A ⊎ B) → (c : code x) → inl a₀ ≡ x
+    decode x c = ?
+-}
+
+open import Data.Nat
+open import Data.Unit
+open import Data.Empty
 
 code : ℕ → ℕ → Set
-code = {!!}
+code ℕ.zero ℕ.zero = ⊤
+code ℕ.zero (ℕ.suc m) = ⊥
+code (ℕ.suc n) ℕ.zero = ⊥
+code (ℕ.suc n) (ℕ.suc m) = code n m
 
+r : (n : ℕ) → code n n
+r ℕ.zero = tt
+r (ℕ.suc n) = r n
+
+-- 2.13
+
+natcode-lem : ∀ {m n : ℕ} → (m ≡ n) → code m n
+natcode-lem {x}{y} p = encode {x}{y} p where
+  encode : ∀ {m n : ℕ} → (m ≡ n) → code m n
+  encode {m}{n} p = transport p (r m)
+
+  decode : ∀ {m n : ℕ} → code m n → (m ≡ n)
+  decode {ℕ.zero} {ℕ.zero} tt = refl 
+  decode {ℕ.zero} {ℕ.suc _} ()
+  decode {ℕ.suc _} {ℕ.zero} ()
+  decode {ℕ.suc m} {ℕ.suc n} c = cong ℕ.suc (decode c)
+
+  enc-dec-quasi : ∀ {n : ℕ} → decode {n}{n} (encode {n}{n} refl) ≡ refl
+  enc-dec-quasi {ℕ.zero} = refl
+  enc-dec-quasi {ℕ.suc n₁} = {!!}
