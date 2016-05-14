@@ -229,13 +229,16 @@ _×_ n {A} {x} x₁ x₂ = loop n x
 -- Paths are funtor looking things.
 -- We like paths
 -- They respect equality and are all continuous-like
-ap : ∀ {i} {A : Set i}{B : Set i}{x y : A}{f : A → B} → (x ≡ y) → (f x ≡ f y)
-ap {i} {A}{B} {x}{y}{f} p = ind₌ D d p where
-  D : (x y : A) → (p : x ≡ y) → Set i 
+ap : ∀ {i j} {A : Set i}{B : Set j}{x y : A}{f : A → B} → (x ≡ y) → (f x ≡ f y)
+ap {i}{j} {A}{B} {x}{y}{f} p = ind₌ D d p where
+  D : (x y : A) → (p : x ≡ y) → Set j
   D x y p = f x ≡ f y
 
   d : (x : A) → D x x refl
   d = λ x → refl
+
+ap₂ : ∀ {i j k} {A : Set i}{B : Set j}{C : Set k}{x x′ : A}{y y′ : B}(f : A → B → C) → (x ≡ x′) → (y ≡ y′) → (f x y ≡ f x′ y′)
+ap₂ f p q = composite (ap {f = λ _ → f _ _} p) (ap {f = f _} q)
 
 ap' : ∀ {i j} {A : Set i}{B : Set j}{x y : A} → (f : A → B) → ((x ≡ y) → (f x ≡ f y))
 ap' f refl = refl
@@ -338,6 +341,28 @@ id-is-equiv {i} A = record
 --    ∘ With A ≃ B and B ≃ C we have A ≃ C 
 _≃_ : ∀ {i j} (A : Set i) (B : Set j) → Set (i ⊔ j)
 A ≃ B = Σ (A → B) IsEquiv
+
+open import Data.Product renaming (_×_ to _×p_)
+
+split-path : ∀ {i j}{A : Set i}{B : Set j}{x y : A ×p B} → x ≡ y → (proj₁ x ≡ proj₁ y) ×p (proj₂ x ≡ proj₂ y)
+split-path p = ap {f = proj₁} p , ap {f = proj₂} p
+
+pair₌ : ∀ {i j}{A : Set i}{B : Set j}{x y : A ×p B} → (proj₁ x ≡ proj₁ y) ×p (proj₂ x ≡ proj₂ y) → x ≡ y
+pair₌ (p , q) = ap₂ _,_ p q
+
+split-is-equiv : ∀ {i j}{A : Set i}{B : Set j}{x y : A ×p B} → IsEquiv (pair₌ {x = x}{y = y})
+split-is-equiv {x = x}{y = y} = record
+  { from = split-path
+  ; iso₁ = λ pq →
+          ind₌ (λ _ _ p → ∀ {b₁ b₂} (q : b₁ ≡ b₂) →
+            split-path (pair₌ (p , q)) ≡ p , q)
+          (λ _ q → ind₌
+            (λ _ _ q →
+              split-path (pair₌ (refl , q)) ≡ refl , q)
+            (λ _ → refl) q)
+              (proj₁ pq) (proj₂ pq)
+  ; iso₂ = ind₌ (λ _ _ p → pair₌ (split-path p) ≡ p) (λ _ → refl)
+  }
 
 {-
 happly : ∀ {i}{A : Set i}{f g : A → Set i} → (f ≡ g) → ((x : A) → f x ≡ g x)

@@ -15,6 +15,9 @@ open import Data.Product
 open import Basics
 open import Relation.Equivalence.Univalence
 open import Relation.Equality
+open import Relation.Equality.Extensionality
+open import Relation.Path.Operation
+
 
 isSet : ∀ {a} → Set a → Set a
 isSet A = (x y : A) (p q : x ≡ y) → p ≡ q
@@ -29,22 +32,25 @@ is-0-set : isSet ⊥
 is-0-set ()
 
 is-ℕ-set : isSet ℕ
-is-ℕ-set x y p q = {!!}
+is-ℕ-set = λ x y p q → {!   !}
+
+3-1-5 : ∀ {a b}{A : Set a}{B : Set b} → isSet A → isSet B → isSet (A × B)
+3-1-5 SA SB x y p q = {!   !}
 
 is-1-type : ∀ {a} → Set a → Set a
 is-1-type A = (x y : A) → (p q : x ≡ y) → (r s : p ≡ q) → r ≡ s
 
 3-1-8 : ∀ {a}{A : Set a} → isSet A → is-1-type A
-3-1-8 f x y p q r s = {!!}
+3-1-8 f x y p q r s = {! (g p) ∘ r ≡ (g q)  !}
   where
-    g : {q : x ≡ y} → (p ≡ q)
-    g {q} = f x y p q
+    g : (q : x ≡ y) → (p ≡ q)
+    g q = f x y p q
 
-3-1-9 : ¬ isSet Set
-3-1-9 x = remark {!e!} where
+3-1-9 : ¬ (isSet Set)
+3-1-9 x = remark {!   !} where
   remark : ¬ (true ≡ false)
   remark = λ ()
-  
+
   e : Bool ≃ Bool
   e = e-equiv , record { from = e-equiv ; iso₁ = λ x → helper {x} ; iso₂ = λ x → helper {x} } where
     e-equiv : Bool → Bool
@@ -56,13 +62,13 @@ is-1-type A = (x y : A) → (p q : x ≡ y) → (r s : p ≡ q) → r ≡ s
     helper {false} = refl
 
 not-double-neg : ∀ {A : Set} → (¬ (¬ A) → A) → ⊥
-not-double-neg f = {!!} where
+not-double-neg f = {!   !} where
   e : Bool ≃ Bool
   e = e-equiv , record { from = e-equiv ; iso₁ = λ x → helper {x} ; iso₂ = λ x → helper {x} } where
     e-equiv : Bool → Bool
     e-equiv true = false
     e-equiv false = true
-    
+
     helper : ∀ {x : Bool} → e-equiv (e-equiv x) ≡ x
     helper {true} = refl
     helper {false} = refl
@@ -96,8 +102,31 @@ top-is-prop tt tt = refl
   g : ⊤ → P
   g u = x₀
 
-3-3-4 : ∀ {a}{A : Set a} → (f : isProp A) → isSet A
-3-3-4 {a}{A} f x y p q = {!!} where
-  g : A → (x ≡ y)
-  g y = f x y
 
+3-3-4 : ∀ {a}{A : Set a} → isProp A → isSet A
+3-3-4 {_}{A} f x y p q = {!   !} {- lem p ∘ lem q ⁻¹ where
+  g : _
+  g = f x
+
+  lem : (p : x ≡ y) → p ≡ g x ⁻¹ ∘ g y
+  lem p = ?
+-}
+
+isProp-is-prop : ∀ {a}{A : Set a} → isProp (isProp A)
+isProp-is-prop f g = funext λ x →
+                     funext λ y → 3-3-4 f _ _ (f x y) (g x y)
+
+isSet-is-prop : ∀ {a}{A : Set a} → isProp (isSet A)
+isSet-is-prop f g = funext λ x →
+                    funext λ y →
+                    funext λ p →
+                    funext λ q → 3-3-4 (f x y) _ _ (f x y p q) (g x y p q)
+
+3-5-1 : ∀ {a}{A : Set a} → (P : A → Set) → ({x : A} → isProp (P x)) → (u v : Σ[ x ∈ A ] P x) → (proj₁ u ≡ proj₁ v) → u ≡ v
+3-5-1 P x u v p = {!   !}
+
+3-6-1 : ∀ {a b}{A : Set a}{B : Set b} → (isProp A) → (isProp B) → isProp (A × B)
+3-6-1 PA PB px py = {!   !}
+
+3-6-2 : ∀ {a b}{A : Set a}{B : A → Set b}{x : A} → (isProp (B x)) → isProp ((x : A) → B x)
+3-6-2 PPI f g = funext λ x → {! f x ≡ g x  !}
