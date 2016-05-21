@@ -56,7 +56,7 @@ ind₌ C c {x}{y} p rewrite p = c y
 
 -- "Informally, the induction principle for identity types says that if we
 -- construct an object (or prove a statement) which depends on an inhabitant
--- p : x == y of an identity type, 
+-- p : x == y of an identity type,
 data _==_ {i} {A : Set i} (a : A) : A → Set (lsuc i) where
   idp : a == a -- then it suffices to perform the construction (or the proof) in
                -- the special case when x and y are the same (judgmentally)
@@ -114,7 +114,7 @@ composite' {i} {A} {_}{_}{z} = ind₌ D d where
 composite'' : ∀ {i} {A : Set i}{x y z : A} → (x ≡ y) → (y ≡ z) → (x ≡ z)
 composite'' refl refl = refl
 
---   Equality   |        Homotopy        |     ∞-Groupoid      
+--   Equality   |        Homotopy        |     ∞-Groupoid
 -- reflexivity  | constant path          | identity morphism
 -- symmetry     | inversion of paths     | inverse morphism
 -- transitivity | concatenation of paths | composition of morphisms
@@ -135,7 +135,7 @@ lem-1-r {i} {A} {x}{y} {p} = ind₌ D d p where
 
   d : (x₁ : A) → D x₁ x₁ refl
   d = λ x → refl
-  
+
 -- Reflexivity left
 lem-1-l : ∀ {i} {A : Set i}{x y : A}{p : x ≡ y} → p ≡ (composite refl p)
 lem-1-l {i} {A} {x}{y} {p} = ind₌ D d p where
@@ -225,8 +225,8 @@ _×_ n {A} {x} x₁ x₂ = loop n x
 
 -- 2.2.1
 
--- We're type theorists, so we like funtor-looking things.
--- Paths are funtor looking things.
+-- We're type theorists, so we like functor-looking things.
+-- Paths are functor looking things.
 -- We like paths
 -- They respect equality and are all continuous-like
 ap : ∀ {i j} {A : Set i}{B : Set j}{x y : A}{f : A → B} → (x ≡ y) → (f x ≡ f y)
@@ -338,7 +338,7 @@ id-is-equiv {i} A = record
 -- Type equivalence is also an equivalence, just on the Universe because:
 --    ∘ id-is-equiv works for it, therefore A ≃ A
 --    ∘ With A ≃ B, we can always make B ≃ A
---    ∘ With A ≃ B and B ≃ C we have A ≃ C 
+--    ∘ With A ≃ B and B ≃ C we have A ≃ C
 _≃_ : ∀ {i j} (A : Set i) (B : Set j) → Set (i ⊔ j)
 A ≃ B = Σ (A → B) IsEquiv
 
@@ -350,19 +350,20 @@ split-path p = ap {f = proj₁} p , ap {f = proj₂} p
 pair₌ : ∀ {i j}{A : Set i}{B : Set j}{x y : A ×p B} → (proj₁ x ≡ proj₁ y) ×p (proj₂ x ≡ proj₂ y) → x ≡ y
 pair₌ (p , q) = ap₂ _,_ p q
 
-split-is-equiv : ∀ {i j}{A : Set i}{B : Set j}{x y : A ×p B} → IsEquiv (pair₌ {x = x}{y = y})
-split-is-equiv {x = x}{y = y} = record
-  { from = split-path
-  ; iso₁ = λ pq →
-          ind₌ (λ _ _ p → ∀ {b₁ b₂} (q : b₁ ≡ b₂) →
-            split-path (pair₌ (p , q)) ≡ p , q)
-          (λ _ q → ind₌
-            (λ _ _ q →
-              split-path (pair₌ (refl , q)) ≡ refl , q)
-            (λ _ → refl) q)
-              (proj₁ pq) (proj₂ pq)
-  ; iso₂ = ind₌ (λ _ _ p → pair₌ (split-path p) ≡ p) (λ _ → refl)
-  }
+instance
+  split-is-equiv : ∀ {i j}{A : Set i}{B : Set j}{x y : A ×p B} → IsEquiv (pair₌ {x = x}{y = y})
+  split-is-equiv {x = x}{y = y} = record
+    { from = split-path
+    ; iso₁ = λ pq →
+            ind₌ (λ _ _ p → ∀ {b₁ b₂} (q : b₁ ≡ b₂) →
+              split-path (pair₌ (p , q)) ≡ (p , q))
+            (λ _ q → ind₌
+              (λ _ _ q →
+                split-path (pair₌ (refl , q)) ≡ (refl , q))
+              (λ _ → refl) q)
+                (proj₁ pq) (proj₂ pq)
+    ; iso₂ = ind₌ (λ _ _ p → pair₌ (split-path p) ≡ p) (λ _ → refl)
+    }
 
 {-
 happly : ∀ {i}{A : Set i}{f g : A → Set i} → (f ≡ g) → ((x : A) → f x ≡ g x)
@@ -393,7 +394,7 @@ data _⊎_ {a b} (A : Set a) (B : Set b) : Set (a ⊔ b) where
 code : ∀ {a b}{{A : Set a}}{{B : Set b}} → A ⊎ B → Set (a ⊔ b)
 code (inl a) = ?
 code (inr b) = ⊥
-    
+
 code-lem : ∀ {a b}{{A : Set a}}{{B : Set b}} → (x : A ⊎ B) → (a₀ : A) → ((inl a₀ ≡ x) ≃ code x)
 code-lem {{A}} {{B}} x a₀ = ? where
     encode : (x : A ⊎ B) → (p : inl a₀ ≡ x) → code x
@@ -413,23 +414,22 @@ code ℕ.zero (ℕ.suc m) = ⊥
 code (ℕ.suc n) ℕ.zero = ⊥
 code (ℕ.suc n) (ℕ.suc m) = code n m
 
-r : (n : ℕ) → code n n
-r ℕ.zero = tt
-r (ℕ.suc n) = r n
-
 -- 2.13
 
 natcode-lem : ∀ {m n : ℕ} → (m ≡ n) → code m n
 natcode-lem {x}{y} p = encode {x}{y} p where
   encode : ∀ {m n : ℕ} → (m ≡ n) → code m n
-  encode {m}{n} p = transport p (r m)
+  encode {m}{n} p = transport p (r m) where
+    r : (n : ℕ) → code n n
+    r ℕ.zero = tt
+    r (ℕ.suc n) = r n
 
   decode : ∀ {m n : ℕ} → code m n → (m ≡ n)
-  decode {ℕ.zero} {ℕ.zero} tt = refl 
+  decode {ℕ.zero} {ℕ.zero} tt = refl
   decode {ℕ.zero} {ℕ.suc _} ()
   decode {ℕ.suc _} {ℕ.zero} ()
   decode {ℕ.suc m} {ℕ.suc n} c = cong ℕ.suc (decode c)
 
   enc-dec-quasi : ∀ {n : ℕ} → decode {n}{n} (encode {n}{n} refl) ≡ refl
   enc-dec-quasi {ℕ.zero} = refl
-  enc-dec-quasi {ℕ.suc n₁} = {!!}
+  enc-dec-quasi {ℕ.suc n₁} = {! !}
