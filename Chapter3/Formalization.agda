@@ -120,7 +120,11 @@ top-is-prop : isProp ⊤
 top-is-prop tt tt = refl
 
 3-3-3 : ∀ {a b}{P : Set a}{Q : Set b} → (p : isProp P)(q : isProp Q) → (f : P → Q) → (g : Q → P) → P ≃ Q
-3-3-3 p q f g = f , record { from = g ; iso₁ = λ x → p (g (f x)) x ; iso₂ = λ y → q (f (g y)) y }
+3-3-3 p q f g = f , record
+                      { from = g
+                      ; iso₁ = λ x → p (g (f x)) x
+                      ; iso₂ = λ y → q (f (g y)) y
+                      }
 
 3-3-2 : ∀ {a}{P : Set a} → (p : isProp P) → (x₀ : P) → P ≃ ⊤
 3-3-2 {_}{P} p x₀ = 3-3-3 p (top-is-prop) f g where
@@ -130,25 +134,29 @@ top-is-prop tt tt = refl
   g : ⊤ → P
   g u = x₀
 
+isProp-isSet : ∀ {a}{A : Set a} → isProp A → isSet A
+isProp-isSet {_}{A} f x y p q = lem p ∙ lem q ⁻¹ where
+  g : (y : A) → x ≡ y
+  g y = f x y
 
-3-3-4 : ∀ {a}{A : Set a} → isProp A → isSet A
-3-3-4 {_}{A} f x y p q = {!   !} {- lem p ∘ lem q ⁻¹ where
-  g : _
-  g = f x
-
-  lem : (p : x ≡ y) → p ≡ g x ⁻¹ ∘ g y
-  lem p = ?
--}
+  -- Read bottom-to-top
+  lem : (p : x ≡ y) → p ≡ (g x ⁻¹ ∙ g y)
+  lem p = (ap {f = (λ z → z ∙ p)} (back-and-there-again {p = (g x)}) ⁻¹) -- we have p = g(x)−1   g(y) = q.
+        ∙ (assoc (g x ⁻¹) (g x) p ⁻¹) -- and after a little convincing
+        ∙ ap {f = (λ z → (g x ⁻¹) ∙ z)} -- which is to say that p = g(y)⁻¹ ∙ g(z)
+          ( (2-11-2 x p (g x) ⁻¹) -- Hence by Lemma 2.11.2, we have g(y) ∙ p = g(z)
+          ∙ (apd {f = g} p) -- we have apd(p) : p(g(y)) = g(z).
+          ) -- Then for any y,z : A and p : y = z
 
 isProp-is-prop : ∀ {a}{A : Set a} → isProp (isProp A)
 isProp-is-prop f g = funext λ x →
-                     funext λ y → 3-3-4 f _ _ (f x y) (g x y)
+                     funext λ y → isProp-isSet f _ _ (f x y) (g x y)
 
 isSet-is-prop : ∀ {a}{A : Set a} → isProp (isSet A)
 isSet-is-prop f g = funext λ x →
                     funext λ y →
                     funext λ p →
-                    funext λ q → 3-3-4 (f x y) _ _ (f x y p q) (g x y p q)
+                    funext λ q → isProp-isSet (f x y) _ _ (f x y p q) (g x y p q)
 
 3-5-1 : ∀ {a}{A : Set a} → (P : A → Set) → ({x : A} → isProp (P x)) → (u v : Σ[ x ∈ A ] P x) → (proj₁ u ≡ proj₁ v) → u ≡ v
 3-5-1 P x u v p = {!   !}

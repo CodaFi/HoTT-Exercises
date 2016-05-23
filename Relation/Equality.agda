@@ -21,5 +21,3 @@ cong f refl = refl
 --
 ind₌ : ∀ {a c}{A : Set a} → (C : (x y : A) → (x ≡ y) → Set c) → ((x : A) → C x x refl) → (x y : A) → (p : x ≡ y) → C x y p
 ind₌ C c x .x refl = c x
-
-
